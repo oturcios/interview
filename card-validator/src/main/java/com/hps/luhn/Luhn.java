@@ -1,5 +1,7 @@
 package com.hps.luhn;
 
+import java.math.BigInteger;
+
 /**
  * @see https://en.wikipedia.org/wiki/Luhn_algorithm#Description
  */
@@ -15,8 +17,14 @@ public class Luhn {
 	 * @return true if the card number is valid according to the Luhn algorithm,
 	 *         false if not
 	 */
-	public boolean isValidLuhn(int cardNumber) {
-		return (cardNumber % 10) == generateCheckDigit(cardNumber / 10);
+	public boolean isValidLuhn(String cardNumber) {
+
+		if (isNumeric(cardNumber)) {
+			int checkDigit = Integer.parseInt(cardNumber.substring(cardNumber.length() - 1));
+			return checkDigit == generateCheckDigit(cardNumber.substring(0,cardNumber.length() - 1));
+		}
+
+		return false;
 	}
 
 	/**
@@ -28,26 +36,31 @@ public class Luhn {
 	 *
 	 * @return the check digit
 	 */
-	public int generateCheckDigit(int cardNumber) {
+	public int generateCheckDigit(String cardNumber) {
 		boolean doubleDigit = true;
 		int sum = 0;
-		while (cardNumber > 0) {
-			// starting from the right (rightmost is the unknown check digit)
-			long digit = cardNumber % 10;
 
-			if (doubleDigit) { // double the value of every second digit
-				digit *= 2;
+		if (isNumeric(cardNumber)) {
+			while (!cardNumber.isEmpty()) {
+				// starting from the right (rightmost is the unknown check digit)
+				long digit = Long.parseLong(cardNumber.substring(cardNumber.length() - 1));
 
-				// if two digits, use the sum of the digits
-				if (digit >= 10) {
-					digit = digit / 10 + digit % 10;
+				if (doubleDigit) { // double the value of every second digit
+					digit *= 2;
+
+					// if two digits, use the sum of the digits
+					if (digit >= 10) {
+						digit = digit / 10 + digit % 10;
+					}
 				}
+				doubleDigit = !doubleDigit;
+
+				sum += digit;
+
+				cardNumber = cardNumber.substring(0,cardNumber.length() - 1); // remaining digits to the left
 			}
-			doubleDigit = !doubleDigit;
-
-			sum += digit;
-
-			cardNumber /= 10; // remaining digits to the left
+		}else {
+			return -1; // returns -1 to indicate that it is not a valid check digit
 		}
 
 		return sum * 9 % 10;
@@ -65,21 +78,37 @@ public class Luhn {
 	 *
 	 * @return the number of valid Luhn card numbers in the range, inclusive
 	 */
-	public int countRange(int startRange, int endRange) {
+	public int countRange(String startRangeStr, String endRangeStr) {
 
 		int count =0;
 
-		//verify if the endRange is higher or equal than startRange
-		if (endRange >= startRange) {
+		if (isNumeric(startRangeStr) && isNumeric(endRangeStr)) {
 
-			while (startRange <= endRange) {
-				//Verify if the cardNumber is a valid Luhn card number
-				if (isValidLuhn(startRange))
-					count++;
+			BigInteger startRange = new BigInteger(startRangeStr);
+			BigInteger endRange = new BigInteger(endRangeStr);
 
-				startRange++;
+			//verify if the endRange is higher or equal than startRange
+			if (endRange.compareTo(startRange) >= 0) {
+
+				while (startRange.compareTo(endRange) <= 0) {
+					//Verify if the cardNumber is a valid Luhn card number
+					if (isValidLuhn(startRange.toString()))
+						count++;
+
+					startRange = startRange.add(new BigInteger("1"));
+				}
 			}
+
 		}
 		return count;
+	}
+
+	private boolean isNumeric(String cardNumber) {
+
+		if (cardNumber == null)
+			return false;
+
+		String regex = "[0-9]+";
+		return cardNumber.matches(regex);
 	}
 }
