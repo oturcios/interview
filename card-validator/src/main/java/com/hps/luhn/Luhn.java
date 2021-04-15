@@ -6,8 +6,6 @@ package com.hps.luhn;
 public class Luhn {
 
 	/**
-	 * TODO
-	 *
 	 * Accepts a card number and determines if the card number is a valid number
 	 * with respect to the Luhn algorithm.
 	 *
@@ -18,7 +16,7 @@ public class Luhn {
 	 *         false if not
 	 */
 	public boolean isValidLuhn(int cardNumber) {
-		return false;
+		return (cardNumber % 10) == generateCheckDigit(cardNumber / 10);
 	}
 
 	/**
