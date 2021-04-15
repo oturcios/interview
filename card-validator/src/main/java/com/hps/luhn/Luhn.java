@@ -54,8 +54,6 @@ public class Luhn {
 	}
 
 	/**
-	 * TODO
-	 *
 	 * Accepts two card numbers representing the starting and ending numbers of
 	 * a range of card numbers and counts the number of valid Luhn card numbers
 	 * that exist in the range, inclusive.
@@ -68,6 +66,20 @@ public class Luhn {
 	 * @return the number of valid Luhn card numbers in the range, inclusive
 	 */
 	public int countRange(int startRange, int endRange) {
-		return 1;
+
+		int count =0;
+
+		//verify if the endRange is higher or equal than startRange
+		if (endRange >= startRange) {
+
+			while (startRange <= endRange) {
+				//Verify if the cardNumber is a valid Luhn card number
+				if (isValidLuhn(startRange))
+					count++;
+
+				startRange++;
+			}
+		}
+		return count;
 	}
 }
